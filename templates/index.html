@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><3</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Caveat:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #a3c9d7;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        h1.title {
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .note-card {
+            background: #ffffff;
+            width: 100%;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        .note-card::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ffb4b4;
+        }
+        .note-text-wrapper {
+            position: relative;
+            overflow: hidden;
+            max-height: 155px; /* ~5 satır */
+            transition: max-height 0.5s ease;
+        }
+        .note-text-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .note-text-wrapper.expanded::after {
+            opacity: 0;
+        }
+        .note-text {
+            font-family: 'Caveat', cursive;
+            font-size: 22px;
+            color: #2b4c7e;
+            line-height: 1.4;
+        }
+        .read-more-btn {
+            display: block;
+            margin: 8px auto 0;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            color: #627d98;
+            cursor: pointer;
+            padding: 4px 10px;
+        }
+        .read-more-btn:hover {
+            color: #102a43;
+        }
+        .cassette-box {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            width: 100%;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .cassette-shape {
+            width: 100%;
+            height: 100px;
+            background: #fdfaf0;
+            border: 3px solid #dcd3be;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+        }
+        .cassette-hole {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #a3c9d7;
+            border: 4px dashed #b8a88a;
+            transition: transform 0.2s linear;
+        }
+        /* Kaset dönme animasyonu */
+        .cassette-hole.spinning {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        .playlist-list {
+            list-style: none;
+            font-family: 'Caveat', cursive;
+            font-size: 20px;
+            color: #334e68;
+        }
+        .playlist-list li {
+            padding: 6px 10px;
+            border-bottom: 1px dashed #bccadc;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 4px;
+        }
+        .playlist-list li:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .playlist-list li.active {
+            font-weight: bold;
+            color: #102a43;
+            background: #ffffff;
+        }
+        .player-card {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            padding: 20px 20px 28px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+        }
+        .credit-tag {
+            position: absolute;
+            right: 20px;
+            bottom: 8px;
+            font-size: 10px;
+            color: #9fb3c8;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .track-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .details {
+            max-width: 70%;
+        }
+        .track-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #102a43;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .track-artist {
+            font-size: 13px;
+            color: #627d98;
+            margin-top: 3px;
+        }
+        .counter {
+            font-size: 12px;
+            color: #9fb3c8;
+            font-weight: 600;
+        }
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e4e7eb;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #102a43;
+            width: 0%;
+            border-radius: 3px;
+        }
+        .time-stamps {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #9fb3c8;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+        }
+        .btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: #102a43;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.9); }
+        .play-btn {
+            width: 45px;
+            height: 45px;
+            background: #102a43;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+        #youtube-player {
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="title">HEMEN AŞAĞIDAN BİR MÜZİK SEÇ VE BUNLARI OKUMAYA BAŞLA</h1>
+
+        <div class="note-card">
+            <div class="note-text-wrapper" id="note-wrapper">
+                <div class="note-text">
+                    Öncelikle iyi ki doğdun güzeliiim, doğum günün kutlu olsun. Muhtemelen bunları da diğer hediyelerle birlikte alacaksın. Özür dilerim şimdiden koyacak müzik gelmedi aklıma, bizi çağırıştıracağını düşündüklerimi ekledim. Sen hayatıma girdiğinden beri, o 29 Kasım öğleninden beri kendimi olduğumdan çok daha iyi hissediyorum. Yüzümde hep sebepsiz bir gülümseme oluyor. Her şey için gerçekten minnettarım. Bana bu kadar iyi geleceğini tahmin etmiyordum ama sen benim herşeyim oldun. İyi ki doğdun iyi ki varsın bebeğim. Seni çok çok çoooookkk seviyorum. İyi ki senin gibi birim var. ❤️❤️❤️
+                </div>
+            </div>
+            <button class="read-more-btn" id="read-more-btn">Devamını oku ▾</button>
+        </div>
+
+        <div class="cassette-box">
+            <div class="cassette-shape">
+                <div class="cassette-hole"></div>
+                <div class="cassette-hole"></div>
+            </div>
+            <ul class="playlist-list" id="playlist-ui">
+                <li>Yükleniyor...</li>
+            </ul>
+        </div>
+
+        <div class="player-card">
+            <div class="track-info">
+                <div class="details">
+                    <div class="track-title" id="current-title">Şarkı Yükleniyor...</div>
+                    <div class="track-artist" id="current-artist">...</div>
+                </div>
+                <div class="counter" id="track-counter">0/0</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="time-stamps">
+                    <span id="current-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="prev-btn">⏮</button>
+                <button class="btn play-btn" id="play-btn">▶</button>
+                <button class="btn" id="next-btn">⏭</button>
+            </div>
+            <span class="credit-tag">by miqsa</span>
+        </div>
+    </div>
+
+    <!-- YouTube Iframe -->
+    <div id="youtube-player"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    let playlist = [];
+    let currentIndex = 0;
+    let player = null;
+    let isPlaying = false;
+    let playerReady = false;
+    let updateTimer;
+    const defaultVolume = 30;
+
+    // API Verisini Çekme
+    fetch('/api/playlist')
+        .then(res => res.json())
+        .then(data => {
+            playlist = data;
+            renderPlaylist();
+            if (playlist.length > 0) {
+                updateTrackInfo();
+            }
+        });
+
+    setTimeout(() => {
+        if (!playerReady) {
+            const titleEl = document.getElementById('current-title');
+            titleEl.textContent = 'Oynatıcı yüklenemedi (Reklam engelleyiciyi kapatıp yenileyin)';
+            titleEl.style.whiteSpace = 'normal';
+        }
+    }, 6000);
+
+    // Not Kartı "Devamını Oku"
+    const noteWrapper = document.getElementById('note-wrapper');
+    const readMoreBtn = document.getElementById('read-more-btn');
+    let noteExpanded = false;
+
+    readMoreBtn.addEventListener('click', () => {
+        noteExpanded = !noteExpanded;
+        if (noteExpanded) {
+            const fullHeight = noteWrapper.scrollHeight;
+            noteWrapper.style.maxHeight = fullHeight + 'px';
+            noteWrapper.classList.add('expanded');
+            readMoreBtn.textContent = 'Daha az göster ▴';
+        } else {
+            noteWrapper.classList.remove('expanded');
+            noteWrapper.style.maxHeight = '155px';
+            readMoreBtn.textContent = 'Devamını oku ▾';
+        }
+    });
+
+    function renderPlaylist() {
+        const listEl = document.getElementById('playlist-ui');
+        listEl.innerHTML = '';
+        playlist.forEach((track, idx) => {
+            const li = document.createElement('li');
+            li.textContent = `${idx + 1}. ${track.title}`;
+            if (idx === currentIndex) li.classList.add('active');
+            li.addEventListener('click', () => loadAndPlay(idx));
+            listEl.appendChild(li);
+        });
+    }
+
+    function updateTrackInfo() {
+        const track = playlist[currentIndex];
+        document.getElementById('current-title').textContent = track.title;
+        document.getElementById('current-artist').textContent = track.uploader;
+        document.getElementById('track-counter').textContent = `${currentIndex + 1}/${playlist.length}`;
+        renderPlaylist();
+    }
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('youtube-player', {
+            height: '200',
+            width: '200',
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: {
+                'onStateChange': onPlayerStateChange,
+                'onReady': onPlayerReady,
+                'onError': onPlayerError
+            }
+        });
+    }
+
+    function onPlayerError(event) {
+        const titleEl = document.getElementById('current-title');
+        titleEl.textContent = 'Video oynatılamıyor (Embed kısıtlaması var)';
+    }
+
+    function onPlayerReady() {
+        playerReady = true;
+        if (player.setVolume) player.setVolume(defaultVolume);
+        
+        // Autoplay engeline takılmamak için ilk videoyu sadece cue (hazırda beklet) ediyoruz.
+        if (playlist.length > 0) {
+            player.cueVideoById(playlist[currentIndex].id);
+        }
+    }
+
+    function loadAndPlay(index) {
+        if (!playlist[index] || !playerReady) return;
+
+        currentIndex = index;
+        updateTrackInfo();
+        resetProgress();
+        
+        player.loadVideoById(playlist[currentIndex].id);
+        if (player.setVolume) player.setVolume(defaultVolume);
+        
+        player.playVideo();
+    }
+
+    function toggleCassetteAnimation(active) {
+        const holes = document.querySelectorAll('.cassette-hole');
+        holes.forEach(h => {
+            if (active) h.classList.add('spinning');
+            else h.classList.remove('spinning');
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.PLAYING) {
+            isPlaying = true;
+            document.getElementById('play-btn').textContent = '⏸';
+            toggleCassetteAnimation(true);
+            startTimer();
+        } else if (event.data === YT.PlayerState.ENDED) {
+            nextTrack();
+        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
+            isPlaying = false;
+            document.getElementById('play-btn').textContent = '▶';
+            toggleCassetteAnimation(false);
+            clearInterval(updateTimer);
+        }
+    }
+
+    document.getElementById('play-btn').addEventListener('click', () => {
+        if (!playlist.length || !playerReady) return;
+
+        if (isPlaying) {
+            player.pauseVideo();
+        } else {
+            player.playVideo();
+        }
+    });
+
+    document.getElementById('next-btn').addEventListener('click', nextTrack);
+    document.getElementById('prev-btn').addEventListener('click', prevTrack);
+
+    function nextTrack() {
+        if (!playlist.length) return;
+        const nextIndex = (currentIndex + 1) % playlist.length;
+        loadAndPlay(nextIndex);
+    }
+
+    function prevTrack() {
+        if (!playlist.length) return;
+        const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+        loadAndPlay(prevIndex);
+    }
+
+    document.getElementById('progress-bar').addEventListener('click', (e) => {
+        if (!player || !player.getDuration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const newPercent = clickX / rect.width;
+        const newTime = player.getDuration() * newPercent;
+        player.seekTo(newTime, true);
+    });
+
+    function resetProgress() {
+        document.getElementById('progress-fill').style.width = '0%';
+        document.getElementById('current-time').textContent = '0:00';
+        document.getElementById('total-time').textContent = '0:00';
+    }
+
+    function startTimer() {
+        clearInterval(updateTimer);
+        updateTimer = setInterval(() => {
+            if (player && player.getCurrentTime) {
+                const currentTime = player.getCurrentTime();
+                const duration = player.getDuration();
+                document.getElementById('current-time').textContent = formatTime(currentTime);
+                document.getElementById('total-time').textContent = formatTime(duration);
+                if (duration > 0) {
+                    const percent = (currentTime / duration) * 100;
+                    document.getElementById('progress-fill').style.width = `${percent}%`;
+                }
+            }
+        }, 500);
+    }
+
+    function formatTime(seconds) {
+        if (!seconds || isNaN(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+</script>
+</body>
+</html>
