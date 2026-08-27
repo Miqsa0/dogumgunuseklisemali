@@ -6,8 +6,10 @@
     <title><3</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Caveat:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}">
-    
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Konfeti Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
     <style>
         body {
@@ -18,7 +20,6 @@
             background-attachment: fixed;
         }
 
-        /* Sürüklenebilir Yuvarlak İlerleme Başlığı (Thumb) */
         .progress-bar {
             position: relative;
             cursor: pointer;
@@ -58,9 +59,13 @@
             <button class="read-more-btn" id="read-more-btn">Devamını oku ▾</button>
         </div>
 
-        <div class="counter-card">
-            <div class="counter-title">29 Kasım 2025'ten beri seninle...</div>
-            <div id="together-counter" class="counter-digits">Yükleniyor...</div>
+        <!-- DOĞUM GÜNÜ SÜRPRİZ DİLEK KUTUSU -->
+        <div class="wish-box-card" id="wish-box">
+            <div class="wish-icon">🎁</div>
+            <div class="wish-content">
+                <div class="wish-title">Sana Bir Dilek Tuttum</div>
+                <div class="wish-desc" id="wish-text">Açmak için tıkla.</div>
+            </div>
         </div>
 
         <div class="cassette-box">
@@ -105,41 +110,6 @@
     <audio id="audio-player" preload="auto"></audio>
 
 <script>
-    // Birliktelik Sayacı Mantığı (29 Kasım 2025)
-    const startDate = new Date(2025, 10, 29, 0, 0, 0); 
-
-    function updateCounter() {
-        const now = new Date();
-        
-        let years = now.getFullYear() - startDate.getFullYear();
-        let months = now.getMonth() - startDate.getMonth();
-        let days = now.getDate() - startDate.getDate();
-        let hours = now.getHours() - startDate.getHours();
-        let minutes = now.getMinutes() - startDate.getMinutes();
-        let seconds = now.getSeconds() - startDate.getSeconds();
-
-        if (seconds < 0) { seconds += 60; minutes--; }
-        if (minutes < 0) { minutes += 60; hours--; }
-        if (hours < 0) { hours += 24; days--; }
-        if (days < 0) {
-            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-            days += prevMonth.getDate();
-            months--;
-        }
-        if (months < 0) { months += 12; years--; }
-
-        const totalMonths = (years * 12) + months;
-        let timeStr = "";
-        
-        if (totalMonths > 0) timeStr += `${totalMonths} Ay `;
-        timeStr += `${days} Gün ${hours} Saat ${minutes} Dk ${seconds} Sn`;
-
-        document.getElementById("together-counter").innerText = timeStr;
-    }
-
-    setInterval(updateCounter, 1000);
-    updateCounter();
-
     let playlist = [];
     let currentIndex = 0;
     const audio = document.getElementById('audio-player');
@@ -187,6 +157,40 @@
             noteWrapper.style.maxHeight = '155px';
             readMoreBtn.textContent = 'Devamını oku ▾';
         }
+    });
+
+    // Sürpriz Dilek Kutusu Etkileşimi (Rastgele / Random)
+    const wishes = [
+        "Yeni yaşında bütün güzel kalbin gibi hayallerin gerçek olsun güzeliiim",
+        "Bugün dünya üzerindeki en tatlı insanın doğduğu gün, iyi ki varsın herşeyiiim",
+        "Gülüşün hayatımın en güzel anı, yeni yaşında gülüşün hiç eksik olmasın bebeğiiiim",
+        "İyi ki doğdun aptalsalakada'm seni her şeyden çok ama çok seviyorum"
+    ];
+    
+    const wishBox = document.getElementById('wish-box');
+    const wishText = document.getElementById('wish-text');
+
+    wishBox.addEventListener('click', () => {
+        // Konfeti Patlatma Efekti
+        try {
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+        } catch(e) {
+            console.log("Konfeti yüklenemedi ama sorun değil.");
+        }
+
+        // Rastgele bir dilek seç (aynısının üst üste gelme ihtimaline karşı küçük bir kontrol de ekleyebilirsin ama Math.random tamamen rastgeledir)
+        const randomIndex = Math.floor(Math.random() * wishes.length);
+
+        // Metni Değiştir
+        wishText.style.opacity = 0;
+        setTimeout(() => {
+            wishText.textContent = wishes[randomIndex];
+            wishText.style.opacity = 1;
+        }, 150);
     });
 
     function renderPlaylist() {
@@ -263,7 +267,6 @@
         playAudio();
     }
 
-    // --- SÜRÜKLEME VE İLERLEME ÇUBUĞU MANTIĞI ---
     let isDragging = false;
     const progressBar = document.getElementById('progress-bar');
     const progressFill = document.getElementById('progress-fill');
@@ -302,7 +305,6 @@
         return targetTime;
     }
 
-    // Mouse Etkileşimleri
     progressBar.addEventListener('mousedown', (e) => {
         isDragging = true;
         const newTime = seek(e);
@@ -323,7 +325,6 @@
         }
     });
 
-    // Mobil / Dokunmatik Etkileşimler
     progressBar.addEventListener('touchstart', (e) => {
         isDragging = true;
         const newTime = seek(e);
