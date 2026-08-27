@@ -5,270 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><3</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Caveat:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="./icon.png">
-    <link rel="shortcut icon" type="image/png" href="./icon.png">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #a3c9d7;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            background-image: url("{{ url_for('static', filename='kalp-bg.png') }}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
-        .container {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        h1.title {
-            font-family: 'VT323', monospace;
-            font-size: 32px;
-            letter-spacing: 2px;
-            color: #1a1a1a;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .note-card {
-            background: #ffffff;
-            width: 100%;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            position: relative;
-        }
-        .note-card::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #ffb4b4;
-        }
-        .note-text-wrapper {
-            position: relative;
-            overflow: hidden;
-            max-height: 155px; /* ~5 satır */
-            transition: max-height 0.5s ease;
-        }
-        .note-text-wrapper::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 40px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .note-text-wrapper.expanded::after {
-            opacity: 0;
-        }
-        .note-text {
-            font-family: 'Caveat', cursive;
-            font-size: 22px;
-            color: #2b4c7e;
-            line-height: 1.4;
-        }
-        .read-more-btn {
-            display: block;
-            margin: 8px auto 0;
-            background: none;
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 13px;
-            color: #627d98;
-            cursor: pointer;
-            padding: 4px 10px;
-        }
-        .read-more-btn:hover {
-            color: #102a43;
-        }
-        .cassette-box {
-            background: rgba(255, 255, 255, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            width: 100%;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        .cassette-shape {
-            width: 100%;
-            height: 100px;
-            background: #fdfaf0;
-            border: 3px solid #dcd3be;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            position: relative;
-        }
-        .cassette-hole {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: #a3c9d7;
-            border: 4px dashed #b8a88a;
-            transition: transform 0.2s linear;
-        }
-        /* Kaset dönme animasyonu */
-        .cassette-hole.spinning {
-            animation: spin 3s linear infinite;
-        }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-        .playlist-list {
-            list-style: none;
-            font-family: 'Caveat', cursive;
-            font-size: 20px;
-            color: #334e68;
-        }
-        .playlist-list li {
-            padding: 6px 10px;
-            border-bottom: 1px dashed #bccadc;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 4px;
-        }
-        .playlist-list li:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-        .playlist-list li.active {
-            font-weight: bold;
-            color: #102a43;
-            background: #ffffff;
-        }
-        .player-card {
-            background: #ffffff;
-            border-radius: 20px;
-            width: 100%;
-            padding: 20px 20px 28px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-        }
-        .credit-tag {
-            position: absolute;
-            right: 20px;
-            bottom: 8px;
-            font-size: 10px;
-            color: #9fb3c8;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .track-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .details {
-            max-width: 70%;
-        }
-        .track-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #102a43;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .track-artist {
-            font-size: 13px;
-            color: #627d98;
-            margin-top: 3px;
-        }
-        .counter {
-            font-size: 12px;
-            color: #9fb3c8;
-            font-weight: 600;
-        }
-        .progress-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+
+        /* Sürüklenebilir Yuvarlak İlerleme Başlığı (Thumb) */
         .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e4e7eb;
-            border-radius: 3px;
-            cursor: pointer;
             position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #102a43;
-            width: 0%;
-            border-radius: 3px;
-        }
-        .time-stamps {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #9fb3c8;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 25px;
-        }
-        .btn {
-            background: none;
-            border: none;
             cursor: pointer;
-            font-size: 22px;
-            color: #102a43;
-            transition: transform 0.1s;
         }
-        .btn:active { transform: scale(0.9); }
-        .play-btn {
-            width: 45px;
-            height: 45px;
-            background: #102a43;
-            color: #fff;
+        .progress-thumb {
+            width: 14px;
+            height: 14px;
+            background-color: #ff2a74;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-        }
-        #youtube-player {
-            width: 1px;
-            height: 1px;
-            opacity: 0.01;
             position: absolute;
-            bottom: 0;
-            right: 0;
-            pointer-events: none;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(255, 42, 116, 0.9);
+            cursor: grab;
+            transition: transform 0.1s ease;
+        }
+        .progress-thumb:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.2);
         }
     </style>
 </head>
 <body>
 
+    <div id="side-photos-container"></div>
+
     <div class="container">
-        <h1 class="title">HEMEN AŞAĞIDAN BİR MÜZİK SEÇ VE BUNLARI OKUMAYA BAŞLA</h1>
+        <h1 class="title">HEMEN AŞAĞIDAN İSTEDİĞİN MÜZİĞİ SEÇ VE BUNLARI OKUMAYA BAŞLA</h1>
 
         <div class="note-card">
             <div class="note-text-wrapper" id="note-wrapper">
                 <div class="note-text">
-                    Öncelikle iyi ki doğdun güzeliiim, doğum günün kutlu olsun. Muhtemelen bunları da diğer hediyelerle birlikte alacaksın. Özür dilerim şimdiden koyacak müzik gelmedi aklıma, bizi çağırıştıracağını düşündüklerimi ekledim. Sen hayatıma girdiğinden beri, o 29 Kasım öğleninden beri kendimi olduğumdan çok daha iyi hissediyorum. Yüzümde hep sebepsiz bir gülümseme oluyor. Her şey için gerçekten minnettarım. Bana bu kadar iyi geleceğini tahmin etmiyordum ama sen benim herşeyim oldun. İyi ki doğdun iyi ki varsın bebeğim. Seni çok çok çoooookkk seviyorum. İyi ki senin gibi birim var. ❤️❤️❤️<br><br> -yarakonur
+                    Öncelikle iyi ki doğdun güzeliiim, doğum günün kutlu olsun. Muhtemelen bunu da diğer hediyelerle birlikte göreceksin. Özür dilerim şimdiden koyacak müzik gelmedi aklıma, seni çağırıştıracağını düşündüklerimi ekledim. Sen hayatıma girdiğinden beri, o 29 Kasım gününden beri kendimi olduğumdan çok daha iyi hissediyorum. Yüzümde hep sebepsiz bir gülümseme var ve hepsi senin sayende güzelim. Seni gerçekten çok ama çok seviyorum. Yüz kez hayata gelsem yüzünde de senin sevgilin olmayı isterdim. Her şey için gerçekten çok teşekkür ederim. Bana bu kadar iyi geleceğini tahmin etmiyordum ama sen benim herşeyim oldun. İyi ki doğdun iyi ki varsın bebeğim. Seni gerçekten çok ama çoooookkk seviyorum. İyi ki senin gibi birim var. İyi ki bir aptalmalsalakada'm var. ❤️❤️❤️<br><br> -yarakonur
                 </div>
             </div>
             <button class="read-more-btn" id="read-more-btn">Devamını oku ▾</button>
+        </div>
+
+        <div class="counter-card">
+            <div class="counter-title">29 Kasım 2025'ten beri seninle...</div>
+            <div id="together-counter" class="counter-digits">Yükleniyor...</div>
         </div>
 
         <div class="cassette-box">
@@ -293,6 +85,7 @@
             <div class="progress-container">
                 <div class="progress-bar" id="progress-bar">
                     <div class="progress-fill" id="progress-fill"></div>
+                    <div class="progress-thumb" id="progress-thumb"></div>
                 </div>
                 <div class="time-stamps">
                     <span id="current-time">0:00</span>
@@ -309,39 +102,75 @@
         </div>
     </div>
 
-    <!-- YouTube Iframe -->
-    <div id="youtube-player"></div>
+    <audio id="audio-player" preload="auto"></audio>
 
-<script src="https://www.youtube.com/iframe_api"></script>
 <script>
+    // Birliktelik Sayacı Mantığı (29 Kasım 2025)
+    const startDate = new Date(2025, 10, 29, 0, 0, 0); 
+
+    function updateCounter() {
+        const now = new Date();
+        
+        let years = now.getFullYear() - startDate.getFullYear();
+        let months = now.getMonth() - startDate.getMonth();
+        let days = now.getDate() - startDate.getDate();
+        let hours = now.getHours() - startDate.getHours();
+        let minutes = now.getMinutes() - startDate.getMinutes();
+        let seconds = now.getSeconds() - startDate.getSeconds();
+
+        if (seconds < 0) { seconds += 60; minutes--; }
+        if (minutes < 0) { minutes += 60; hours--; }
+        if (hours < 0) { hours += 24; days--; }
+        if (days < 0) {
+            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+            days += prevMonth.getDate();
+            months--;
+        }
+        if (months < 0) { months += 12; years--; }
+
+        const totalMonths = (years * 12) + months;
+        let timeStr = "";
+        
+        if (totalMonths > 0) timeStr += `${totalMonths} Ay `;
+        timeStr += `${days} Gün ${hours} Saat ${minutes} Dk ${seconds} Sn`;
+
+        document.getElementById("together-counter").innerText = timeStr;
+    }
+
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
     let playlist = [];
     let currentIndex = 0;
-    let player = null;
+    const audio = document.getElementById('audio-player');
     let isPlaying = false;
-    let playerReady = false;
-    let updateTimer;
-    const defaultVolume = 30;
 
-    // API Verisini Çekme
+    const posClasses = ['photo-left-1', 'photo-right-1', 'photo-left-2', 'photo-right-2'];
+
+    fetch('/api/photos')
+        .then(res => res.json())
+        .then(photos => {
+            const container = document.getElementById('side-photos-container');
+            container.innerHTML = '';
+            photos.forEach((photo, idx) => {
+                const card = document.createElement('div');
+                card.className = `side-photo ${posClasses[idx % posClasses.length]}`;
+                card.innerHTML = `<img src="/photos/${photo}" alt="Fotoğraf">`;
+                container.appendChild(card);
+            });
+        })
+        .catch(err => console.error("Fotoğraf hatası:", err));
+
     fetch('/api/playlist')
         .then(res => res.json())
         .then(data => {
             playlist = data;
             renderPlaylist();
             if (playlist.length > 0) {
-                updateTrackInfo();
+                loadTrack(0);
             }
         });
 
-    setTimeout(() => {
-        if (!playerReady) {
-            const titleEl = document.getElementById('current-title');
-            titleEl.textContent = 'Oynatıcı yüklenemedi (Reklam engelleyiciyi kapatıp yenileyin)';
-            titleEl.style.whiteSpace = 'normal';
-        }
-    }, 6000);
-
-    // Not Kartı "Devamını Oku"
     const noteWrapper = document.getElementById('note-wrapper');
     const readMoreBtn = document.getElementById('read-more-btn');
     let noteExpanded = false;
@@ -365,65 +194,42 @@
         listEl.innerHTML = '';
         playlist.forEach((track, idx) => {
             const li = document.createElement('li');
-            li.textContent = `${idx + 1}. ${track.title}`;
+            li.textContent = `${idx + 1}. ${track.display_title}`;
             if (idx === currentIndex) li.classList.add('active');
-            li.addEventListener('click', () => loadAndPlay(idx));
+            li.addEventListener('click', () => {
+                loadTrack(idx);
+                playAudio();
+            });
             listEl.appendChild(li);
         });
     }
 
-    function updateTrackInfo() {
+    function loadTrack(index) {
+        currentIndex = index;
         const track = playlist[currentIndex];
+        audio.src = '/musics/' + track.file;
+        audio.volume = 0.15;
+
         document.getElementById('current-title').textContent = track.title;
         document.getElementById('current-artist').textContent = track.uploader;
         document.getElementById('track-counter').textContent = `${currentIndex + 1}/${playlist.length}`;
+        resetProgress();
         renderPlaylist();
     }
 
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('youtube-player', {
-            height: '200',
-            width: '200',
-            playerVars: {
-                'autoplay': 0,
-                'controls': 0,
-                'enablejsapi': 1,
-                'origin': window.location.origin
-            },
-            events: {
-                'onStateChange': onPlayerStateChange,
-                'onReady': onPlayerReady,
-                'onError': onPlayerError
-            }
-        });
+    function playAudio() {
+        audio.play().then(() => {
+            isPlaying = true;
+            document.getElementById('play-btn').textContent = '⏸';
+            toggleCassetteAnimation(true);
+        }).catch(err => console.log("Oynatma engellendi:", err));
     }
 
-    function onPlayerError(event) {
-        const titleEl = document.getElementById('current-title');
-        titleEl.textContent = 'Video oynatılamıyor (Embed kısıtlaması var)';
-    }
-
-    function onPlayerReady() {
-        playerReady = true;
-        if (player.setVolume) player.setVolume(defaultVolume);
-        
-        // Autoplay engeline takılmamak için ilk videoyu sadece cue (hazırda beklet) ediyoruz.
-        if (playlist.length > 0) {
-            player.cueVideoById(playlist[currentIndex].id);
-        }
-    }
-
-    function loadAndPlay(index) {
-        if (!playlist[index] || !playerReady) return;
-
-        currentIndex = index;
-        updateTrackInfo();
-        resetProgress();
-        
-        player.loadVideoById(playlist[currentIndex].id);
-        if (player.setVolume) player.setVolume(defaultVolume);
-        
-        player.playVideo();
+    function pauseAudio() {
+        audio.pause();
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '▶';
+        toggleCassetteAnimation(false);
     }
 
     function toggleCassetteAnimation(active) {
@@ -434,30 +240,10 @@
         });
     }
 
-    function onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.PLAYING) {
-            isPlaying = true;
-            document.getElementById('play-btn').textContent = '⏸';
-            toggleCassetteAnimation(true);
-            startTimer();
-        } else if (event.data === YT.PlayerState.ENDED) {
-            nextTrack();
-        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
-            isPlaying = false;
-            document.getElementById('play-btn').textContent = '▶';
-            toggleCassetteAnimation(false);
-            clearInterval(updateTimer);
-        }
-    }
-
     document.getElementById('play-btn').addEventListener('click', () => {
-        if (!playlist.length || !playerReady) return;
-
-        if (isPlaying) {
-            player.pauseVideo();
-        } else {
-            player.playVideo();
-        }
+        if (!playlist.length) return;
+        if (isPlaying) pauseAudio();
+        else playAudio();
     });
 
     document.getElementById('next-btn').addEventListener('click', nextTrack);
@@ -466,44 +252,104 @@
     function nextTrack() {
         if (!playlist.length) return;
         const nextIndex = (currentIndex + 1) % playlist.length;
-        loadAndPlay(nextIndex);
+        loadTrack(nextIndex);
+        playAudio();
     }
 
     function prevTrack() {
         if (!playlist.length) return;
         const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-        loadAndPlay(prevIndex);
+        loadTrack(prevIndex);
+        playAudio();
     }
 
-    document.getElementById('progress-bar').addEventListener('click', (e) => {
-        if (!player || !player.getDuration) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const newPercent = clickX / rect.width;
-        const newTime = player.getDuration() * newPercent;
-        player.seekTo(newTime, true);
+    // --- SÜRÜKLEME VE İLERLEME ÇUBUĞU MANTIĞI ---
+    let isDragging = false;
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+    const progressThumb = document.getElementById('progress-thumb');
+
+    audio.addEventListener('timeupdate', () => {
+        if (audio.duration && !isDragging) {
+            const currentTime = audio.currentTime;
+            const duration = audio.duration;
+            document.getElementById('current-time').textContent = formatTime(currentTime);
+            document.getElementById('total-time').textContent = formatTime(duration);
+            const percent = (currentTime / duration) * 100;
+            updateProgressUI(percent);
+        }
     });
 
-    function resetProgress() {
-        document.getElementById('progress-fill').style.width = '0%';
-        document.getElementById('current-time').textContent = '0:00';
-        document.getElementById('total-time').textContent = '0:00';
+    function updateProgressUI(percent) {
+        progressFill.style.width = `${percent}%`;
+        progressThumb.style.left = `${percent}%`;
     }
 
-    function startTimer() {
-        clearInterval(updateTimer);
-        updateTimer = setInterval(() => {
-            if (player && player.getCurrentTime) {
-                const currentTime = player.getCurrentTime();
-                const duration = player.getDuration();
-                document.getElementById('current-time').textContent = formatTime(currentTime);
-                document.getElementById('total-time').textContent = formatTime(duration);
-                if (duration > 0) {
-                    const percent = (currentTime / duration) * 100;
-                    document.getElementById('progress-fill').style.width = `${percent}%`;
-                }
-            }
-        }, 500);
+    function seek(e) {
+        if (!audio.duration) return;
+        const rect = progressBar.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let clickX = clientX - rect.left;
+        
+        if (clickX < 0) clickX = 0;
+        if (clickX > rect.width) clickX = rect.width;
+
+        const newPercent = (clickX / rect.width) * 100;
+        updateProgressUI(newPercent);
+        
+        const targetTime = (newPercent / 100) * audio.duration;
+        document.getElementById('current-time').textContent = formatTime(targetTime);
+        return targetTime;
+    }
+
+    // Mouse Etkileşimleri
+    progressBar.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        const newTime = seek(e);
+        if (newTime !== undefined) audio.currentTime = newTime;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            seek(e);
+        }
+    });
+
+    window.addEventListener('mouseup', (e) => {
+        if (isDragging) {
+            isDragging = false;
+            const newTime = seek(e);
+            if (newTime !== undefined) audio.currentTime = newTime;
+        }
+    });
+
+    // Mobil / Dokunmatik Etkileşimler
+    progressBar.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const newTime = seek(e);
+        if (newTime !== undefined) audio.currentTime = newTime;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            seek(e);
+        }
+    });
+
+    window.addEventListener('touchend', (e) => {
+        if (isDragging) {
+            isDragging = false;
+            const newTime = seek(e);
+            if (newTime !== undefined) audio.currentTime = newTime;
+        }
+    });
+
+    audio.addEventListener('ended', nextTrack);
+
+    function resetProgress() {
+        updateProgressUI(0);
+        document.getElementById('current-time').textContent = '0:00';
+        document.getElementById('total-time').textContent = '0:00';
     }
 
     function formatTime(seconds) {
